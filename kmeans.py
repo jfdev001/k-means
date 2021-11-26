@@ -15,19 +15,34 @@ import numpy as np
 class KMeans:
     """K-Means Clustering Algorithm."""
 
-    def __init__(self,):
+    def __init__(self):
         """"""
-        pass
+        return
 
     def train(self, num_clusters: int, training_data: np.ndarray) -> None:
         """"""
+        features = training_data[:, :-1]
+        labels = training_data[:, -1]
+
         pass
 
     def test(self, testing_data: np.ndarray) -> np.ndarray or np.float64:
         """"""
         pass
 
-    def __train(self,):
+    def __train(self, features, labels, centroids):
+        """"""
+        pass
+
+    def __assignment(self,):
+        """"""
+        pass
+
+    def __update(self,):
+        """"""
+        pass
+
+    def __check_convergence(self,):
         """"""
         pass
 
@@ -78,6 +93,12 @@ def main():
     # Get data
     training_data = np.loadtxt(fname=args.train_data_path)
     testing_data = np.loadtxt(fname=args.test_data_path)
+
+    # Reshape if needed to row vector
+    if len(training_data.shape) == 1:
+        training_data = np.expand_dims(training_data, axis=0)
+    if len(testing_data.shape) == 1:
+        testing_data = np.expand_dims(testing_data, axis=0)
 
     # Instantiate k-means
     k_means = KMeans()
