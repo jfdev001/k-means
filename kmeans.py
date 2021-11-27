@@ -18,11 +18,11 @@ import numpy as np
 class Cluster:
     """Cluster for K-Means."""
 
-    def __init__(self,):
+    def __init__(self, centroid: np.ndarray[np.float64]):
         """Define state for Cluster."""
 
         # Coordinates for cluster
-        self.centroid = np.nan
+        self.centroid = centroid
 
         # Label associated with cluster
         self.label = None
@@ -63,6 +63,15 @@ class Cluster:
         """Check if centroids of two clusters are the same."""
 
         return np.all(np.equal(self.centroid, other.get_centroid()))
+
+    def __sub__(self, other: np.ndarray[np.float64] or Cluster) -> np.float64:
+
+        if isinstance(other, Cluster):
+            return self.centroid - other.get_centroid()
+        elif isinstance(other, np.ndarray):
+            return self.centroid - other
+        else:
+            raise TypeError(':param other: is not a valid type.')
 
     def __repr__(self) -> str:
         """Information about a Cluster obj"""
@@ -129,6 +138,12 @@ class KMeans:
             converged = self.__check_convergence(
                 prev_clusters=prev_clusters,
                 clusters=self.clusters)
+
+        # LOGGING
+        for cluster in self.clusters:
+            print(cluster)
+
+        breakpoint()
 
         # Assign labels
         pass
@@ -219,7 +234,7 @@ class KMeans:
     def __euclidean_distance(
             self,
             arr_1: np.ndarray,
-            arr_2: np.ndarray) -> np.float64:
+            arr_2: Cluster) -> np.float64:
         """Returns the 2-norm (euc. distance) of two arrays."""
 
         return np.linalg.norm(arr_1 - arr_2)
