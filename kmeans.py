@@ -8,18 +8,22 @@ Description: Script for unsupervised clustering of input data using
 K-means algorithm.
 """
 
+from __future__ import annotations
+
 import argparse
 import numpy as np
-from numpy.core.defchararray import center
 
 
 class Cluster:
-    """Centroids for K-Means."""
+    """Cluster for K-Means."""
 
     def __init__(self, centroid: np.ndarray = np.nan, label: int = None):
         """Define state for Cluster."""
 
+        # Coordinates for cluster
         self.centroid = centroid
+
+        # Label associted with cluster
         self.label = label
 
 
@@ -52,13 +56,20 @@ class KMeans:
         :return: None
         """
 
+        # Extract data
         features = training_data[:, :-1]
         labels = training_data[:, -1]
+
+        # Initialize clusters
+        random_ixs = np.random.randint(
+            low=0, high=training_data.shape[0], size=num_clusters)
+
+        clusters = [Cluster(centroid=features[ix, :]) for ix in random_ixs]
 
         converged = False
         while not converged:
             # Call the __train method
-            pass
+            break
 
     def test(
             self,
@@ -74,8 +85,12 @@ class KMeans:
     def __train(
             self,
             features: np.ndarray,
-            labels: np.ndarray,) -> np.ndarray:
+            labels: np.ndarray,
+            clusters: np.ndarray[Cluster]) -> np.ndarray:
         """Private method for iteratively training centroids.
+
+        For each sample in the dataset, determine the closest cluster
+        and then assign 
 
         :param features:
         :param labels:
