@@ -11,6 +11,7 @@ K-means algorithm.
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import numpy as np
 
 
@@ -23,7 +24,7 @@ class Cluster:
         # Coordinates for cluster
         self.centroid = centroid
 
-        # Label associted with cluster
+        # Label associated with cluster
         self.label = label
 
 
@@ -66,14 +67,28 @@ class KMeans:
 
         clusters = [Cluster(centroid=features[ix, :]) for ix in random_ixs]
 
+        # Train clusters
         converged = False
         while not converged:
-            # Call the __train method
-            break
+
+            # Copy the previous clusters
+            prev_clusters = deepcopy(clusters)
+
+            # Pass by reference the current clusters and modify them
+            self.__train(
+                features=features,
+                labels=labels,
+                clusters=clusters)
+
+            # Check for convergence
+            pass
+
+        # Assign labels
+        pass
 
     def test(
             self,
-            testing_data: np.ndarray) -> np.ndarray or np.float64:
+            testing_data: np.ndarray) -> np.ndarray[np.int64] or np.int64:
         """Public method to test using k-means centroids.
 
         :param testing_data:
@@ -86,7 +101,7 @@ class KMeans:
             self,
             features: np.ndarray,
             labels: np.ndarray,
-            clusters: np.ndarray[Cluster]) -> np.ndarray:
+            clusters: np.ndarray[Cluster]) -> None:
         """Private method for iteratively training centroids.
 
         For each sample in the dataset, determine the closest cluster
@@ -94,6 +109,9 @@ class KMeans:
 
         :param features:
         :param labels:
+        :param clusters:
+
+        16878152
 
         :return: None
         """
