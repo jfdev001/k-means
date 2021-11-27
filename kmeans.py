@@ -110,24 +110,25 @@ class KMeans:
         random_ixs = np.random.randint(
             low=0, high=training_data.shape[0], size=num_clusters)
 
-        clusters = [Cluster(centroid=features[ix, :]) for ix in random_ixs]
+        self.clusters = [Cluster(centroid=features[ix, :])
+                         for ix in random_ixs]
 
         # Train clusters
         converged = False
         while not converged:
 
             # Copy the previous clusters
-            prev_clusters = deepcopy(clusters)
+            prev_clusters = deepcopy(self.clusters)
 
             # Pass by reference the current clusters and modify their centroids
-            self.__train(
+            self.__assign_and_update_clusters(
                 features=features,
-                clusters=clusters)
+                clusters=self.clusters)
 
             # Check for convergence
             converged = self.__check_convergence(
                 prev_clusters=prev_clusters,
-                clusters=clusters)
+                clusters=self.clusters)
 
         # Assign labels
         pass
@@ -143,7 +144,7 @@ class KMeans:
         """
         pass
 
-    def __train(
+    def __assign_and_update_clusters(
             self,
             features: np.ndarray[np.float64],
             clusters: list[Cluster]) -> None:
@@ -159,7 +160,7 @@ class KMeans:
         :return: None
         """
 
-        # Iterate through data set
+        # Iterate through data set and assign feature vectors to clusters
         for feature_vector in features:
             dist_lst = []
 
@@ -174,7 +175,8 @@ class KMeans:
             best_cluster_ix = np.argmin(dist_lst)
             clusters[best_cluster_ix].append_vector(feature_vector)
 
-        # Compute new centroids
+        # Update new centroids after all feature vectors have been
+        # assigned to clusters
         for cluster in clusters:
             cluster.set_centroid()
 
