@@ -18,14 +18,14 @@ import numpy as np
 class Cluster:
     """Cluster for K-Means."""
 
-    def __init__(self, centroid: np.ndarray = np.nan, label: int = None):
+    def __init__(self,):
         """Define state for Cluster."""
 
         # Coordinates for cluster
-        self.centroid = centroid
+        self.centroid = np.nan
 
         # Label associated with cluster
-        self.label = label
+        self.label = None
 
         # Vectors from which the centroid will be calculated
         self.vectors = []
@@ -48,7 +48,29 @@ class Cluster:
     def set_centroid(self,) -> None:
         """Use the vector list to compute the new centroid (mean along axis=0)"""
 
+        # Set the centroid
         self.centroid = np.mean(self.vectors, axis=0)
+
+        # Release vectors from memory
+        del self.vectors
+
+    def set_label(self, label: int) -> None:
+        """Set label attr."""
+
+        self.label = label
+
+    def __eq__(self, other: Cluster) -> bool:
+        """Check if centroids of two clusters are the same."""
+
+        return np.all(np.equal(self.centroid, other.get_centroid()))
+
+    def __repr__(self) -> str:
+        """Information about a Cluster obj"""
+
+        rep = f'{self.__class__} object at {hex(id(self))}:'
+        rep += f' (centroid={self.centroid},'
+        rep += f' label={self.label})'
+        return rep
 
 
 class KMeans:
@@ -97,7 +119,7 @@ class KMeans:
             # Copy the previous clusters
             prev_clusters = deepcopy(clusters)
 
-            # Pass by reference the current clusters and modify them
+            # Pass by reference the current clusters and modify their centroids
             self.__train(
                 features=features,
                 clusters=clusters)
@@ -159,20 +181,34 @@ class KMeans:
         # Pass by obj-ref, so return none
         return
 
-    def __assignment(self,):
-        """"""
-        pass
-
-    def __update(self,):
-        """"""
-        pass
-
     def __check_convergence(
             self,
             prev_clusters: list[Cluster],
             clusters: list[Cluster]) -> bool:
         """True if cluster centroids are all the same, false otherwise."""
-        return
+
+        # Iterate through previous and current clusters and
+        # determine whether any centroids are not the same
+        all_clusters_are_same = True
+        ix = 0
+        while all_clusters_are_same and ix < len(clusters):
+
+            # Get parallel clusters
+            cur_cluster = clusters[ix]
+            prev_cluster = prev_clusters[ix]
+
+            # Compute whether the centroids are the same
+            clusters_are_same = cur_cluster == prev_cluster
+
+            # Update outer variable
+            if not clusters_are_same:
+                all_clusters_are_same = False
+
+            # Update index var
+            ix += 1
+
+        # Result of cluster comparison
+        return all_clusters_are_same
 
     def __test(self,):
         """"""
