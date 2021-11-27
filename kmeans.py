@@ -5,7 +5,7 @@ File: kmeans.py
 Class: CSCI 4350
 Instructor: Dr. Joshua Phillips
 Description: Script for unsupervised clustering of input data using
-K-means algorithm.
+K-means algorithm. 16878152
 """
 
 from __future__ import annotations
@@ -27,23 +27,46 @@ class Cluster:
         # Label associated with cluster
         self.label = label
 
+        # Vectors from which the centroid will be calculated
+        self.vectors = []
+
+    def append_vector(self, vector: np.ndarray[np.float64]) -> None:
+        """Add a row vector to the list of vectors."""
+
+        self.vectors.append(vector)
+
+    def get_centroid(self, ) -> np.ndarray[np.float64]:
+        """Get centroid attr."""
+
+        return self.centroid
+
+    def get_label(self, ) -> np.float64:
+        """Get label attr."""
+
+        return self.label
+
+    def set_centroid(self,) -> None:
+        """Use the vector list to compute the new centroid (mean along axis=0)"""
+
+        self.centroid = np.mean(self.vectors, axis=0)
+
 
 class KMeans:
     """K-Means Clustering Algorithm."""
 
-    def __init__(
-            self,):
+    def __init__(self,):
         """Define state for KMeans.
 
         :return: None
         """
 
-        return
+        # List of k-means clusters with the corresponding label
+        self.clusters = None
 
     def train(
             self,
             num_clusters: int,
-            training_data: np.ndarray) -> None:
+            training_data: np.ndarray[np.float64]) -> None:
         """Public method to train k-means.
 
         Calls `__train` method iteratively until the centroids
@@ -77,18 +100,19 @@ class KMeans:
             # Pass by reference the current clusters and modify them
             self.__train(
                 features=features,
-                labels=labels,
                 clusters=clusters)
 
             # Check for convergence
-            pass
+            converged = self.__check_convergence(
+                prev_clusters=prev_clusters,
+                clusters=clusters)
 
         # Assign labels
         pass
 
     def test(
             self,
-            testing_data: np.ndarray) -> np.ndarray[np.int64] or np.int64:
+            testing_data: np.ndarray) -> np.ndarray[np.float64] or np.float64:
         """Public method to test using k-means centroids.
 
         :param testing_data:
@@ -99,23 +123,41 @@ class KMeans:
 
     def __train(
             self,
-            features: np.ndarray,
-            labels: np.ndarray,
-            clusters: np.ndarray[Cluster]) -> None:
+            features: np.ndarray[np.float64],
+            clusters: list[Cluster]) -> None:
         """Private method for iteratively training centroids.
 
-        For each sample in the dataset, determine the closest cluster
-        and then assign 
+        For each sample in the dataset, determine the closest cluster,
+        then assign each feature vector to the cluster and calculate
+        the new cluster.
 
         :param features:
-        :param labels:
         :param clusters:
-
-        16878152
 
         :return: None
         """
-        pass
+
+        # Iterate through data set
+        for feature_vector in features:
+            dist_lst = []
+
+            # Compute euclidean distnace between vector and each centroid
+            for cluster in clusters:
+                euc_dist = self.__euclidean_distance(
+                    arr_1=feature_vector, arr_2=cluster)
+                dist_lst.append(euc_dist)
+
+            # Compute argmin of distances and then append the...
+            # desired vector to the cluster class
+            best_cluster_ix = np.argmin(dist_lst)
+            clusters[best_cluster_ix].append_vector(feature_vector)
+
+        # Compute new centroids
+        for cluster in clusters:
+            cluster.set_centroid()
+
+        # Pass by obj-ref, so return none
+        return
 
     def __assignment(self,):
         """"""
@@ -125,9 +167,12 @@ class KMeans:
         """"""
         pass
 
-    def __check_convergence(self,):
-        """"""
-        pass
+    def __check_convergence(
+            self,
+            prev_clusters: list[Cluster],
+            clusters: list[Cluster]) -> bool:
+        """True if cluster centroids are all the same, false otherwise."""
+        return
 
     def __test(self,):
         """"""
