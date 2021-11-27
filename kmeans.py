@@ -10,28 +10,77 @@ K-means algorithm.
 
 import argparse
 import numpy as np
+from numpy.core.defchararray import center
+
+
+class Cluster:
+    """Centroids for K-Means."""
+
+    def __init__(self, centroid: np.ndarray = np.nan, label: int = None):
+        """"""
+        self.centroid = centroid
+        self.label = None
 
 
 class KMeans:
     """K-Means Clustering Algorithm."""
 
-    def __init__(self):
-        """"""
+    def __init__(
+            self,):
+        """Define state for KMeans.
+
+        :return: None
+        """
+
         return
 
-    def train(self, num_clusters: int, training_data: np.ndarray) -> None:
-        """"""
+    def train(
+            self,
+            num_clusters: int,
+            training_data: np.ndarray) -> None:
+        """Public method to train k-means.
+
+        Calls `__train` method iteratively until the centroids
+        no longer change. The algorithm proceeds by assigning each
+        observation (row vector) to the cluster (randomly initialized)
+        to the cluster with the nearest (Euclidean distance) mean.
+
+        :param num_clusters:
+        :param training_data:
+
+        :return: None
+        """
+
         features = training_data[:, :-1]
         labels = training_data[:, -1]
 
+        converged = False
+        while not converged:
+            # Call the __train method
+            pass
+
+    def test(
+            self,
+            testing_data: np.ndarray) -> np.ndarray or np.float64:
+        """Public method to test using k-means centroids.
+
+        :param testing_data:
+
+        :return:
+        """
         pass
 
-    def test(self, testing_data: np.ndarray) -> np.ndarray or np.float64:
-        """"""
-        pass
+    def __train(
+            self,
+            features: np.ndarray,
+            labels: np.ndarray,) -> np.ndarray:
+        """Private method for iteratively training centroids.
 
-    def __train(self, features, labels, centroids):
-        """"""
+        :param features:
+        :param labels:
+
+        :return: None
+        """
         pass
 
     def __assignment(self,):
