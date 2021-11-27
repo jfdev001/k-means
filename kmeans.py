@@ -17,9 +17,10 @@ class Cluster:
     """Centroids for K-Means."""
 
     def __init__(self, centroid: np.ndarray = np.nan, label: int = None):
-        """"""
+        """Define state for Cluster."""
+
         self.centroid = centroid
-        self.label = None
+        self.label = label
 
 
 class KMeans:
