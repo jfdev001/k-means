@@ -30,7 +30,7 @@ class Cluster:
         # Vectors from which the centroid will be calculated
         self.vectors = []
 
-    def append_vector(self, vector: np.ndarray[np.float64]) -> None:
+    def append_closest_vector(self, vector: np.ndarray[np.float64]) -> None:
         """Add a row vector to the list of vectors closest to centroid."""
 
         self.vectors.append(vector)
@@ -56,7 +56,7 @@ class Cluster:
 
         self.label = label
 
-    def clear_vectors(self,) -> None:
+    def clear_closest_vectors(self,) -> None:
         """Clears the current list of vectors."""
 
         self.vectors = []
@@ -124,6 +124,7 @@ class KMeans:
 
         # Train clusters
         converged = False
+        num_iter = 0
         while not converged:
 
             # Copy the previous clusters
@@ -139,7 +140,10 @@ class KMeans:
                 prev_clusters=prev_clusters,
                 clusters=self.clusters)
 
+            num_iter += 1
+
         # LOGGING
+        print(f'Convergence after `{num_iter}` iterations...')
         for cluster in self.clusters:
             print(cluster)
 
@@ -175,26 +179,26 @@ class KMeans:
 
         # Iterate through data set and assign feature vectors to clusters
         for feature_vector in features:
-            dist_lst = []
 
             # Compute euclidean distnace between vector and each centroid
+            cluster_feature_dist_lst = []
             for cluster in clusters:
-
                 euc_dist = self.__euclidean_distance(
                     arr_1=cluster, arr_2=feature_vector)
-                dist_lst.append(euc_dist)
+
+                cluster_feature_dist_lst.append(euc_dist)
 
             # Compute argmin of distances and then append the...
             # desired vector to the cluster class
-            best_cluster_ix = np.argmin(dist_lst)
-            clusters[best_cluster_ix].append_vector(feature_vector)
+            best_cluster_ix = np.argmin(cluster_feature_dist_lst)
+            clusters[best_cluster_ix].append_closest_vector(feature_vector)
 
         # Update new centroids after all feature vectors have been
         # assigned to clusters... then clears the list of vectors
         # that the cluster currently tracks
         for cluster in clusters:
             cluster.set_centroid()
-            cluster.clear_vectors()
+            cluster.clear_closest_vectors()
 
         # Pass by obj-ref, so return none
         return
