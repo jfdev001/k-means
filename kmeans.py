@@ -104,7 +104,7 @@ class Cluster:
             raise TypeError(':param other: is not a valid type.')
 
     def __repr__(self) -> str:
-        """Information about a Cluster obj"""
+        """Information about a Cluster obj."""
 
         rep = f'{self.__class__} object at {hex(id(self))}:'
         rep += f' (centroid={self.centroid},'
@@ -142,9 +142,12 @@ class KMeans:
         features = training_data[:, :-1]
         labels = training_data[:, -1]
 
-        # Initialize clusters
-        random_ixs = np.random.randint(
-            low=0, high=training_data.shape[0], size=num_clusters)
+        # Initialize clusters by
+        # randomly choosing (WITHOUT REPLACEMENT) K samples...
+        random_ixs = np.random.choice(
+            a=features.shape[0],
+            size=num_clusters,
+            replace=False)
 
         self.clusters = [Cluster(centroid=features[ix, :])
                          for ix in random_ixs]
@@ -184,8 +187,8 @@ class KMeans:
         # LOGGING
         print(f'Convergence after `{num_iter}` iterations...')
         print(f'Num clusters:', len(self.clusters))
-        # for cluster in self.clusters:
-        #     print(cluster)
+        for cluster in self.clusters:
+            print(cluster)
 
     def test(
             self,
