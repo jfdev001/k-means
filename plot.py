@@ -24,7 +24,7 @@ if __name__ == '__main__':
     data = pd.read_csv(args.read_path)
 
     # Plotting elements
-    labels = data['n']
+    labels = data[data.columns[0]]  # first ele is the outer loop var name
     x_pos = np.arange(len(labels))
     errs = data['std_error']
     means = data['mean']

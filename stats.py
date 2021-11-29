@@ -1,4 +1,4 @@
-"""Script for computing mean and std. error"""
+"""Script for computing mean and std. error (95% CI)"""
 
 import numpy as np
 import pandas as pd
@@ -17,10 +17,14 @@ if __name__ == '__main__':
         help='path to write the csv.',
         type=str)
     parser.add_argument(
-        'n_lst',
-        help='list of testing size samples n.',
+        'outer_loop_lst',
+        help='list representing outer loop range.',
         nargs='+',
         type=int)
+    parser.add_argument(
+        'outer_loop_var_name',
+        help='the name of the outer loop variable for dataframe purposes.',
+        type=str)
     args = parser.parse_args()
 
     # Read the file
@@ -29,11 +33,11 @@ if __name__ == '__main__':
         lines = [float(line.strip()) for line in fobj.readlines()]
 
     # Instantiate data frame
-    df = pd.DataFrame({'n': args.n_lst, 'mean': np.empty_like(
-        args.n_lst), 'std_error': np.empty_like(args.n_lst)})
+    df = pd.DataFrame({args.outer_loop_var_name: args.outer_loop_lst, 'mean': np.empty_like(
+        args.outer_loop_lst), 'std_error': np.empty_like(args.outer_loop_lst)})
 
     # Get length of nargs for range increment reasons
-    len_nargs = len(args.n_lst)
+    len_nargs = len(args.outer_loop_lst)
 
     # Compute incrementer
     incrementer = len(lines) // len_nargs
@@ -44,7 +48,6 @@ if __name__ == '__main__':
     mean_lst = []
     std_err_lst = []
 
-    n_ix = 0
     print(len(lines))
     for partition in range(0, len(lines), incrementer):
 
@@ -65,7 +68,7 @@ if __name__ == '__main__':
     # Change values
     print(len(mean_lst))
     print(len(std_err_lst))
-    print(len(args.n_lst))
+    print(len(args.outer_loop_lst))
     df['mean'] = mean_lst
     df['std_error'] = std_err_lst
 
