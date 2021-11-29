@@ -65,6 +65,7 @@ class Cluster:
         return np.all(np.equal(self.centroid, other.get_centroid()))
 
     def __sub__(self, other: np.ndarray[np.float64] or Cluster) -> np.float64:
+        """Subtract Cluster with Cluster or with ndarray."""
 
         if isinstance(other, Cluster):
             return self.centroid - other.get_centroid()
