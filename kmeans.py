@@ -128,10 +128,11 @@ class KMeans:
             training_data: np.ndarray[np.float64]) -> None:
         """Public method to train k-means.
 
-        Calls `__train` method iteratively until the centroids
+        Calls `__assign_and_update_clusters` method iteratively until the centroids
         no longer change. The algorithm proceeds by assigning each
         observation (row vector) to the cluster (randomly initialized)
-        to the cluster with the nearest (Euclidean distance) mean.
+        to the cluster with the nearest (Euclidean distance) mean. Then
+        the cluster's centroid is updated based on these new assignments.
 
         :param num_clusters: Number of clusters for k-means algorithm.
         :param training_data: Data with features and labels (last column).
@@ -246,6 +247,9 @@ class KMeans:
             if cluster.has_closest_vectors():
                 cluster.set_centroid()
                 cluster.clear_closest_vectors()
+
+            # Clusters may not have closest vectors if there are repeat
+            # data points... such clusters should be removed
             else:
                 del clusters[ix]
 
