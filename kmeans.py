@@ -11,6 +11,7 @@ K-means algorithm. 16878152
 from __future__ import annotations
 
 import argparse
+from distutils.util import strtobool
 from copy import deepcopy
 import numpy as np
 
@@ -154,7 +155,6 @@ class KMeans:
 
         # Train clusters
         converged = False
-        num_iter = 0
         while not converged:
 
             # Copy the previous clusters
@@ -182,14 +182,6 @@ class KMeans:
                 for cluster in self.clusters:
                     cluster.set_majority_label()
 
-            num_iter += 1
-
-        # LOGGING
-        print(f'Convergence after `{num_iter}` iterations...')
-        print(f'Num clusters:', len(self.clusters))
-        for cluster in self.clusters:
-            print(cluster)
-
     def test(
             self,
             testing_data: np.ndarray) -> np.ndarray[np.float64] or np.float64:
@@ -199,7 +191,17 @@ class KMeans:
 
         :return:
         """
-        pass
+
+        if testing_data.shape[0] == 1:
+            return self.__test(testing_data)
+
+        else:
+            preds = []
+            for feature_vector in testing_data:
+                pred = self.__test(feature_vector=feature_vector)
+                preds.append(pred)
+
+            return np.array(preds)
 
     def __assign_and_update_clusters(
             self,
@@ -322,6 +324,16 @@ def cli(description: str) -> argparse.ArgumentParser:
         'test_data_path',
         help='path to testing data for k-means.',
         type=str,)
+    parser.add_argument(
+        '--percentage',
+        help='bool to output proportion or just the number of accurate predictions. (default: False)',
+        choices=['True', 'False'],
+        default='False')
+    parser.add_argument(
+        '--precision',
+        help='number of decimal points to keep. Not used by default (default: None)',
+        type=int,
+        default=None)
 
     return parser
 
@@ -339,10 +351,6 @@ def main():
     training_data = np.loadtxt(fname=args.train_data_path)
     testing_data = np.loadtxt(fname=args.test_data_path)
 
-    # Dataset shape
-    print('Train Shape:', training_data.shape)
-    print('Test Shape:', testing_data.shape)
-
     # Reshape if needed to row vector
     if len(training_data.shape) == 1:
         training_data = np.expand_dims(training_data, axis=0)
@@ -358,10 +366,23 @@ def main():
         training_data=training_data)
 
     # Test
-    preds = k_means.test(testing_data=testing_data)
+    testing_features = testing_data[:, :-1]
+    testing_labels = testing_data[:, -1]
+    preds = k_means.test(testing_data=testing_features)
 
     # Print testing outputs
-    pass
+    # Compute accuracy
+    accuracy = np.count_nonzero(preds == testing_labels)
+
+    # Output accuracy
+    if bool(strtobool(args.percentage)):
+        percentage = accuracy/testing_data.shape[0]
+        if args.precision is not None:
+            print(round(percentage, args.precision))
+        else:
+            print(percentage)
+    else:
+        print(accuracy)
 
 
 if __name__ == '__main__':
