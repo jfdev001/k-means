@@ -73,6 +73,11 @@ class Cluster:
 
         self.label = unique_labels[np.argmax(unique_counts)]
 
+    def has_closest_vectors(self, ) -> bool:
+        """True if closest vectors list is greater than 0, false otherwise."""
+
+        return len(self.closest_vectors) > 0
+
     def clear_closest_vectors(self,) -> None:
         """Clears the current list of closest vectors."""
 
@@ -163,7 +168,10 @@ class KMeans:
                 prev_clusters=prev_clusters,
                 clusters=self.clusters)
 
-            # Determine removal of labels or not
+            # Determine removal of labels or not... if convergence has
+            # occurred, then labels can be set, otherwise further iteration
+            # of algorithm requires assignment of new labels and therefore
+            # clearance of current labels
             if not converged:
                 for cluster in self.clusters:
                     cluster.clear_labels()
@@ -175,8 +183,9 @@ class KMeans:
 
         # LOGGING
         print(f'Convergence after `{num_iter}` iterations...')
-        for cluster in self.clusters:
-            print(cluster)
+        print(f'Num clusters:', len(self.clusters))
+        # for cluster in self.clusters:
+        #     print(cluster)
 
     def test(
             self,
@@ -219,19 +228,21 @@ class KMeans:
                 cluster_feature_dist_lst.append(euc_dist)
 
             # Compute argmin of distances and then append the...
-            # desired vector to the cluster class
+            # desired vector to the cluster class.
+            # In case of tied distance, prefers lower ix cluster.
             best_cluster_ix = np.argmin(cluster_feature_dist_lst)
             clusters[best_cluster_ix].append_closest_vector(feature_vector)
             clusters[best_cluster_ix].append_label(label)
 
         # Update new centroids after all feature vectors have been
         # assigned to clusters... then clears the list of feature vectors
-        # that the cluster currently tracks... the clear of feature
-        # vector operation should always occur since those feature
-        # vectors will not be needed
-        for cluster in clusters:
-            cluster.set_centroid()
-            cluster.clear_closest_vectors()
+        # that the cluster currently tracks.
+        for ix, cluster in enumerate(clusters):
+            if cluster.has_closest_vectors():
+                cluster.set_centroid()
+                cluster.clear_closest_vectors()
+            else:
+                del clusters[ix]
 
         # Pass by obj-ref, so return none
         return
