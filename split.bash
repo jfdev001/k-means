@@ -1,5 +1,6 @@
 #!/bin/bash
 
+## N is the desired number of testing examples
 N=$1
 shift
 
