@@ -18,22 +18,32 @@ import numpy as np
 class Cluster:
     """Cluster for K-Means."""
 
-    def __init__(self, centroid: np.ndarray[np.float64]):
+    def __init__(
+            self,
+            centroid: np.ndarray[np.float64],):
         """Define state for Cluster."""
 
         # Coordinates for cluster
         self.centroid = centroid
 
-        # Label associated with cluster
-        self.label = None
-
         # Vectors from which the centroid will be calculated
-        self.vectors = []
+        self.closest_vectors = []
+
+        # Labels associated with the selected vectors
+        self.labels = []
+
+        # Majority label associated with cluster
+        self.label = None
 
     def append_closest_vector(self, vector: np.ndarray[np.float64]) -> None:
         """Add a row vector to the list of vectors closest to centroid."""
 
-        self.vectors.append(vector)
+        self.closest_vectors.append(vector)
+
+    def append_label(self, label: np.float64) -> None:
+        """Add a label corresponding to a closest feature vector to centroid."""
+
+        self.labels.append(label)
 
     def get_centroid(self, ) -> np.ndarray[np.float64]:
         """Get centroid attribute."""
@@ -49,30 +59,40 @@ class Cluster:
         """Use the vector list to compute the new centroid (mean along axis=0)"""
 
         # Set the centroid
-        self.centroid = np.mean(self.vectors, axis=0)
+        self.centroid = np.mean(self.closest_vectors, axis=0)
 
-    def set_label(self, label: int) -> None:
-        """Set label attribute."""
+    def set_majority_label(self,) -> None:
+        """Set label attribute based on majority of labels."""
 
-        self.label = label
+        # Sorted in ascending order so will prefer lower integer class
+        # label in event of ties...
+        unique_labels, unique_counts = np.unique(
+            self.labels, return_counts=True)
+
+        self.label = unique_labels[np.argmax(unique_counts)]
 
     def clear_closest_vectors(self,) -> None:
-        """Clears the current list of vectors."""
+        """Clears the current list of closest vectors."""
 
-        self.vectors = []
+        self.closest_vectors = []
 
-    def __eq__(self, other: Cluster) -> bool:
+    def clear_labels(self, ) -> None:
+        """Clears current list of labels."""
+
+        self.labels = []
+
+    def __eq__(self, __object: Cluster) -> bool:
         """Check if centroids of two clusters are the same."""
 
-        return np.all(np.equal(self.centroid, other.get_centroid()))
+        return np.all(np.equal(self.centroid, __object.get_centroid()))
 
-    def __sub__(self, other: np.ndarray[np.float64] or Cluster) -> np.float64:
+    def __sub__(self, __object: np.ndarray[np.float64] or Cluster) -> np.float64:
         """Subtract Cluster with Cluster or with ndarray."""
 
-        if isinstance(other, Cluster):
-            return self.centroid - other.get_centroid()
-        elif isinstance(other, np.ndarray):
-            return self.centroid - other
+        if isinstance(__object, Cluster):
+            return self.centroid - __object.get_centroid()
+        elif isinstance(__object, np.ndarray):
+            return self.centroid - __object
         else:
             raise TypeError(':param other: is not a valid type.')
 
@@ -133,6 +153,7 @@ class KMeans:
             # Pass by reference the current clusters and modify their centroids
             self.__assign_and_update_clusters(
                 features=features,
+                labels=labels,
                 clusters=self.clusters)
 
             # Check for convergence
@@ -140,15 +161,20 @@ class KMeans:
                 prev_clusters=prev_clusters,
                 clusters=self.clusters)
 
+            # Determine removal of labels or not
+            if not converged:
+                for cluster in self.clusters:
+                    cluster.clear_labels()
+            else:
+                for cluster in self.clusters:
+                    cluster.set_majority_label()
+
             num_iter += 1
 
         # LOGGING
         print(f'Convergence after `{num_iter}` iterations...')
         for cluster in self.clusters:
             print(cluster)
-
-        # Assign labels
-        pass
 
     def test(
             self,
@@ -164,6 +190,7 @@ class KMeans:
     def __assign_and_update_clusters(
             self,
             features: np.ndarray[np.float64],
+            labels: np.ndarray[np.float64],
             clusters: list[Cluster]) -> None:
         """Private method for iteratively training centroids.
 
@@ -172,13 +199,14 @@ class KMeans:
         the new cluster.
 
         :param features:
+        :param labels:
         :param clusters:
 
         :return: None
         """
 
         # Iterate through data set and assign feature vectors to clusters
-        for feature_vector in features:
+        for feature_vector, label in zip(features, labels):
 
             # Compute euclidean distnace between vector and each centroid
             cluster_feature_dist_lst = []
@@ -192,10 +220,13 @@ class KMeans:
             # desired vector to the cluster class
             best_cluster_ix = np.argmin(cluster_feature_dist_lst)
             clusters[best_cluster_ix].append_closest_vector(feature_vector)
+            clusters[best_cluster_ix].append_label(label)
 
         # Update new centroids after all feature vectors have been
-        # assigned to clusters... then clears the list of vectors
-        # that the cluster currently tracks
+        # assigned to clusters... then clears the list of feature vectors
+        # that the cluster currently tracks... the clear of feature
+        # vector operation should always occur since those feature
+        # vectors will not be needed
         for cluster in clusters:
             cluster.set_centroid()
             cluster.clear_closest_vectors()
