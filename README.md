@@ -12,6 +12,8 @@ description
 
 # Analysis
 
+If running on Unix system, use `sed -i -e 's/\r$//' parallelize.bash` and `sed -i -e 's/\r$//' split.bash`. You will also need to make sure both `.bash` files are executable. This can be done with `chmod +x parallelize.bash` and `chmod +x split.bash`
+
 For analysis of the iris dataset, use the below bash command:
 
 ```
