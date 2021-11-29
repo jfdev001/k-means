@@ -31,17 +31,17 @@ class Cluster:
         self.vectors = []
 
     def append_vector(self, vector: np.ndarray[np.float64]) -> None:
-        """Add a row vector to the list of vectors."""
+        """Add a row vector to the list of vectors closest to centroid."""
 
         self.vectors.append(vector)
 
     def get_centroid(self, ) -> np.ndarray[np.float64]:
-        """Get centroid attr."""
+        """Get centroid attribute."""
 
         return self.centroid
 
     def get_label(self, ) -> np.float64:
-        """Get label attr."""
+        """Get label attribute."""
 
         return self.label
 
@@ -51,13 +51,15 @@ class Cluster:
         # Set the centroid
         self.centroid = np.mean(self.vectors, axis=0)
 
-        # Release vectors from memory
-        del self.vectors
-
     def set_label(self, label: int) -> None:
-        """Set label attr."""
+        """Set label attribute."""
 
         self.label = label
+
+    def clear_vectors(self,) -> None:
+        """Clears the current list of vectors."""
+
+        self.vectors = []
 
     def __eq__(self, other: Cluster) -> bool:
         """Check if centroids of two clusters are the same."""
@@ -87,10 +89,7 @@ class KMeans:
     """K-Means Clustering Algorithm."""
 
     def __init__(self,):
-        """Define state for KMeans.
-
-        :return: None
-        """
+        """Define state for KMeans."""
 
         # List of k-means clusters with the corresponding label
         self.clusters = None
@@ -106,8 +105,8 @@ class KMeans:
         observation (row vector) to the cluster (randomly initialized)
         to the cluster with the nearest (Euclidean distance) mean.
 
-        :param num_clusters:
-        :param training_data:
+        :param num_clusters: Number of clusters for k-means algorithm.
+        :param training_data: Data with features and labels (last column).
 
         :return: None
         """
@@ -144,8 +143,6 @@ class KMeans:
         for cluster in self.clusters:
             print(cluster)
 
-        breakpoint()
-
         # Assign labels
         pass
 
@@ -154,7 +151,7 @@ class KMeans:
             testing_data: np.ndarray) -> np.ndarray[np.float64] or np.float64:
         """Public method to test using k-means centroids.
 
-        :param testing_data:
+        :param testing_data: Feature containing (continuous) data only.
 
         :return:
         """
@@ -182,8 +179,9 @@ class KMeans:
 
             # Compute euclidean distnace between vector and each centroid
             for cluster in clusters:
+
                 euc_dist = self.__euclidean_distance(
-                    arr_1=feature_vector, arr_2=cluster)
+                    arr_1=cluster, arr_2=feature_vector)
                 dist_lst.append(euc_dist)
 
             # Compute argmin of distances and then append the...
@@ -192,9 +190,11 @@ class KMeans:
             clusters[best_cluster_ix].append_vector(feature_vector)
 
         # Update new centroids after all feature vectors have been
-        # assigned to clusters
+        # assigned to clusters... then clears the list of vectors
+        # that the cluster currently tracks
         for cluster in clusters:
             cluster.set_centroid()
+            cluster.clear_vectors()
 
         # Pass by obj-ref, so return none
         return
@@ -235,7 +235,7 @@ class KMeans:
     def __euclidean_distance(
             self,
             arr_1: np.ndarray,
-            arr_2: Cluster) -> np.float64:
+            arr_2: np.ndarray) -> np.float64:
         """Returns the 2-norm (euc. distance) of two arrays."""
 
         return np.linalg.norm(arr_1 - arr_2)
@@ -271,6 +271,9 @@ def main():
     # Set up CLI
     parser = cli('script for train-testing k-means algorithm')
     args = parser.parse_args()
+
+    # Set the random seed
+    np.random.seed(args.random_seed)
 
     # Get data
     training_data = np.loadtxt(fname=args.train_data_path)
