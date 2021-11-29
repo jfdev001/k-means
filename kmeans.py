@@ -59,6 +59,8 @@ class Cluster:
         """Use the vector list to compute the new centroid (mean along axis=0)"""
 
         # Set the centroid
+        if len(self.closest_vectors) == 0:
+            raise
         self.centroid = np.mean(self.closest_vectors, axis=0)
 
     def set_majority_label(self,) -> None:
@@ -313,6 +315,10 @@ def main():
     # Get data
     training_data = np.loadtxt(fname=args.train_data_path)
     testing_data = np.loadtxt(fname=args.test_data_path)
+
+    # Dataset shape
+    print('Train Shape:', training_data.shape)
+    print('Test Shape:', testing_data.shape)
 
     # Reshape if needed to row vector
     if len(training_data.shape) == 1:
