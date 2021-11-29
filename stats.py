@@ -13,10 +13,6 @@ if __name__ == '__main__':
         help='path to data.',
         type=str)
     parser.add_argument(
-        'write_path',
-        help='path to write the csv.',
-        type=str)
-    parser.add_argument(
         'outer_loop_lst',
         help='list representing outer loop range.',
         nargs='+',
@@ -25,6 +21,11 @@ if __name__ == '__main__':
         'outer_loop_var_name',
         help='the name of the outer loop variable for dataframe purposes.',
         type=str)
+    parser.add_argument(
+        '--write_path',
+        help='path to write the csv.',
+        type=str,
+        default=None)
     args = parser.parse_args()
 
     # Read the file
@@ -52,7 +53,7 @@ if __name__ == '__main__':
     for partition in range(0, len(lines), incrementer):
 
         # log increment
-        print(partition, partition + incrementer)
+        print('Partition range:', partition, partition + incrementer)
 
         # Get the line interval
         interval = lines[partition: partition + incrementer]
@@ -66,16 +67,19 @@ if __name__ == '__main__':
         std_err_lst.append(round(std_err, 3))
 
     # Change values
-    print(len(mean_lst))
-    print(len(std_err_lst))
-    print(len(args.outer_loop_lst))
+    print('mean list length:', len(mean_lst))
+    print('std error list length:', len(std_err_lst))
+    print('outer loop list length:', len(args.outer_loop_lst))
     df['mean'] = mean_lst
     df['std_error'] = std_err_lst
 
-    # Write the dataframe to file
-    if not args.write_path.endswith('csv'):
-        args.write_path = args.write_path + '.csv'
+    # Output the max of the means
+    max_mean_ix = df['mean'].argmax()
+    print('Best Performer:', *df.iloc[max_mean_ix])
 
     # Writing file
-    print('Writing file...')
-    df.to_csv(args.write_path, index=False)
+    if args.write_path is not None:
+        if not args.write_path.endswith('csv'):
+            args.write_path = args.write_path + '.csv'
+        print('Writing file...')
+        df.to_csv(args.write_path, index=False)
