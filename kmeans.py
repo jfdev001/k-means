@@ -5,7 +5,7 @@ File: kmeans.py
 Class: CSCI 4350
 Instructor: Dr. Joshua Phillips
 Description: Script for unsupervised clustering of input data using
-K-means algorithm. 16878152
+K-means algorithm.
 """
 
 from __future__ import annotations
