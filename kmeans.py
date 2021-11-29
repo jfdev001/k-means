@@ -265,9 +265,18 @@ class KMeans:
         # Result of cluster comparison
         return all_clusters_are_same
 
-    def __test(self,):
-        """"""
-        pass
+    def __test(self, feature_vector: np.ndarray[np.float64]) -> np.float64:
+        """Makes a prediction of label based on row vectors distance to centroids."""
+
+        cluster_feature_dist_lst = []
+        for cluster in self.clusters:
+            euc_dist = self.__euclidean_distance(
+                arr_1=cluster, arr_2=feature_vector)
+
+            cluster_feature_dist_lst.append(euc_dist)
+
+        best_cluster_ix = np.argmin(cluster_feature_dist_lst)
+        return self.clusters[best_cluster_ix].get_label()
 
     def __euclidean_distance(
             self,
