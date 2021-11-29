@@ -9,6 +9,11 @@ https://www.delftstack.com/howto/matplotlib/how-to-set-tick-labels-font-size-in-
 https://stackoverflow.com/questions/12608788/changing-the-tick-frequency-on-x-or-y-axis-in-matplotlib
 
 https://stackoverflow.com/questions/28288383/python-matplotlib-plot-x-axis-with-first-x-axis-value-labeled-as-1-instead-of-0
+
+https://stackoverflow.com/questions/22481854/plot-mean-and-standard-deviation
+
+Font family:
+https://stackoverflow.com/questions/21321670/how-to-change-fonts-in-matplotlib-python
 """
 
 import numpy as np
@@ -32,6 +37,12 @@ if __name__ == '__main__':
     parser.add_argument('y_label', help='y-label for graph.', type=str)
 
     parser.add_argument('title', help='title for graph', type=str)
+
+    parser.add_argument(
+        '--plot_type',
+        choices=['bar', 'errorbar'],
+        help='type of graph to plot. (default: errorbar)',
+        default='errorbar')
 
     parser.add_argument(
         '--x_size',
@@ -70,11 +81,23 @@ if __name__ == '__main__':
         type=int)
 
     parser.add_argument(
+        '--markersize',
+        help='size of marker for errbar chart only. (default: 9)',
+        default=12,
+        type=int)
+
+    parser.add_argument(
         '--figsize',
         help='width by length (space separated). (default: None)',
         default=None,
         nargs='+',
         type=int)
+
+    parser.add_argument(
+        '--font_family',
+        help='set font family globally. (default: sans-serif)',
+        type=str,
+        default='sans-serif')
 
     args = parser.parse_args()
 
@@ -88,16 +111,24 @@ if __name__ == '__main__':
     errs = data['std_error']
     means = data['mean']
 
+    # Set global style
+    plt.rcParams['font.family'] = args.font_family
+
     # Plotting
     fig, ax = plt.subplots(figsize=args.figsize)
 
     # Bar plot
-    ax.bar(x_pos, means,
-           yerr=errs,
-           align='center',
-           alpha=0.5,
-           ecolor='black',
-           capsize=10)
+    if args.plot_type == 'bar':
+        ax.bar(x_pos, means,
+               yerr=errs,
+               align='center',
+               alpha=0.5,
+               ecolor='black',
+               capsize=10)
+
+    elif args.plot_type == 'errorbar':
+        ax.errorbar(x_pos, means, yerr=errs, fmt='o',
+                    markersize=args.markersize)
 
     # Set the x label
     ax.set_xlabel(args.x_label, fontsize=args.x_size)
